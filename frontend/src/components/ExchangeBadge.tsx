@@ -35,6 +35,12 @@ function TokenBrandedCoinbase(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+function TokenBrandedBitfinex(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}><path fill="#16B157" d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9s9-4.03 9-9s-4.03-9-9-9m5.18 11.74c-.12.26-.4.42-.68.42c-.1 0-.19-.02-.29-.06c-1.28-.59-2.7-.89-4.21-.89c-1.51 0-2.93.3-4.21.89c-.36.17-.8.01-.97-.36c-.17-.36-.01-.8.36-.97c1.44-.66 3.03-.99 4.82-.99c1.79 0 3.38.33 4.82.99c.36.17.52.61.36.97M12 8.95c1.78 0 3.38.33 4.83.99c.36.17.52.61.36.97c-.12.26-.4.42-.68.42c-.1 0-.19-.02-.29-.06c-1.28-.59-2.7-.89-4.22-.89c-1.51 0-2.93.3-4.21.89c-.36.17-.8.01-.97-.36c-.17-.36-.01-.8.36-.97c1.45-.66 3.04-.99 4.82-.99" /></svg>
+  );
+}
+
 type ExchangeIconProps = SVGProps<SVGSVGElement> & {
   exchange: string;
 };
@@ -68,6 +74,9 @@ function ExchangeIcon({ exchange, className, ...props }: ExchangeIconProps) {
   }
   if (exchangeLower.includes('coinbase')) {
     return <TokenBrandedCoinbase className={className} {...props} />;
+  }
+  if (exchangeLower.includes('bitfinex')) {
+    return <TokenBrandedBitfinex className={className} {...props} />;
   }
 
   // Fallback: return first letter

@@ -20,6 +20,7 @@ const (
 	Asterdexf   ExchangeName = "asterdexf"
 	BingX       ExchangeName = "bingx"
 	BingXf      ExchangeName = "bingxf"
+	Bitfinex    ExchangeName = "bitfinex"
 )
 
 // Exchange defines the interface that all exchange adapters must implement

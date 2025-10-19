@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go run:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm install)",
+      "Bash(npm run dev:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File Create-Shortcut.ps1)",
+      "Bash(powershell -ExecutionPolicy Bypass -Command \"Get-Process -Id (Get-NetTCPConnection -LocalPort 8086 -State Listen).OwningProcess | Stop-Process -Force\")",
+      "Bash(timeout:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

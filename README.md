@@ -6,12 +6,6 @@ Multi-exchange, real-time orderbook with a Go backend and a React + Vite fronten
 
 ---
 
-Support the project
-- If you want to support my work, you can sign up to BingX using my referral: https://bingx.com/en/invite/JGNQPF
-- Bingx is one of the Global Top 10 Crypto Exchange. It has low fees and great UX. Also a key sponsor to Chelsea Football Club.
-
----
-
 What it is
 - Backend: Go service that connects to several exchanges, maintains live orderbooks, and serves a WebSocket feed at ws://localhost:8086/ws. See [cmd/main.go](cmd/main.go) and [internal/websocket/server.go](internal/websocket/server.go).
 - Frontend: React app that subscribes to the WebSocket, renders per-exchange orderbooks, aggregated orderbooks, statistics, and charts. See [frontend/src/App.tsx](frontend/src/App.tsx).
@@ -28,6 +22,32 @@ Project layout
   - App: [frontend/src/App.tsx](frontend/src/App.tsx)
 
 Quick start
+
+Easy Start (Windows)
+```bash
+# Double-click start.bat (or run start.ps1 for PowerShell)
+# This will:
+# 1. Start the Go backend
+# 2. Start the frontend
+# 3. Open your browser automatically
+```
+
+To stop everything:
+```bash
+# Double-click stop.bat (or close the terminal windows)
+```
+
+Easy Start (Mac/Linux)
+```bash
+./start.sh
+# This will:
+# 1. Start the Go backend in the background
+# 2. Start the frontend in the background
+# 3. Open your browser automatically
+# Press Ctrl+C to stop both services
+```
+
+Manual Start
 
 Backend (Go 1.22+)
 ```bash
@@ -65,8 +85,9 @@ Exchanges enabled
   - Kraken (spot)
   - OKX (spot)
   - Coinbase (spot)
+  - Bitfinex (spot)
+  - BingX (spot), BingXf (perps)
   - Asterdexf (perps)
-  - BingX (spot)
 
 Builds
 

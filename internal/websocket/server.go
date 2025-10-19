@@ -189,7 +189,7 @@ func (s *Server) broadcastMessages() {
 }
 
 func (s *Server) startDataPush() {
-	ticker := time.NewTicker(200 * time.Millisecond)
+	ticker := time.NewTicker(500 * time.Millisecond)
 	defer ticker.Stop()
 
 	for range ticker.C {

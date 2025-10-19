@@ -60,13 +60,9 @@ func main() {
 			Symbol: *symbol,
 		},
 		{
-			Name:   exchange.BingX,
+			Name:   exchange.Bitfinex,
 			Symbol: *symbol,
 		},
-		/*{
-			Name:   exchange.BingXf,
-			Symbol: *symbol,
-		},*/
 	})
 
 	// Set up signal handling
