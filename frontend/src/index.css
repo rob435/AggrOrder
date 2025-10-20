@@ -172,3 +172,96 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Platform-specific styles - Mac gets MAJOR scaling */
+.platform-mac {
+  font-size: 140%; /* Base 40% increase for everything */
+}
+
+.platform-mac [data-slot="table-head"] {
+  @apply h-24 px-2.5 text-2xl font-bold;
+}
+
+.platform-mac [data-slot="table-cell"] {
+  @apply px-2.5 py-7;
+}
+
+.platform-mac .table-text-price {
+  @apply text-3xl font-semibold;
+}
+
+.platform-mac .table-text-data {
+  @apply text-3xl font-semibold;
+}
+
+.platform-mac .table-icon {
+  @apply w-16 h-16;
+}
+
+.platform-mac button {
+  @apply text-2xl px-8 py-5 min-h-[60px];
+}
+
+.platform-mac button svg {
+  @apply w-8 h-8;
+}
+
+.platform-mac [data-slot="toggle-group-item"] {
+  @apply px-8 py-5 text-2xl font-medium min-h-[60px];
+}
+
+.platform-mac [data-slot="toggle-group"] {
+  @apply gap-0;
+}
+
+.platform-mac h1 {
+  @apply text-6xl font-bold;
+}
+
+.platform-mac h2 {
+  @apply text-2xl font-bold;
+}
+
+.platform-mac .hidden.sm\\:inline-flex {
+  @apply text-lg gap-3;
+}
+
+.platform-mac .hidden.sm\\:inline-flex .size-2 {
+  @apply w-3 h-3;
+}
+
+.platform-mac .hidden.sm\\:inline-flex .text-xs {
+  @apply text-base;
+}
+
+/* Make table fill more screen */
+.platform-mac [data-slot="table-container"] {
+  @apply text-base;
+  max-height: calc(100vh - 200px);
+}
+
+/* Increase row density */
+.platform-mac [data-slot="table-row"] {
+  @apply min-h-[80px];
+}
+
+/* Windows keeps original smaller sizes */
+.platform-windows [data-slot="table-head"] {
+  @apply h-12 px-4 text-xs;
+}
+
+.platform-windows [data-slot="table-cell"] {
+  @apply px-4 py-3;
+}
+
+.platform-windows .table-text-price {
+  @apply text-base;
+}
+
+.platform-windows .table-text-data {
+  @apply text-sm;
+}
+
+.platform-windows .table-icon {
+  @apply w-6 h-6;
+}

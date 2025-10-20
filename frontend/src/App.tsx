@@ -7,6 +7,7 @@ import { ToggleGroup, ToggleGroupItem } from './components/ui/toggle-group';
 import { Moon, Sun, X } from 'lucide-react';
 import type { MarketFilter } from './types';
 import { useWebSocket } from './hooks/useWebSocket';
+import { getPlatformClass } from './utils/platform';
 
 import { StatsTable } from './components/StatsTable';
 
@@ -35,21 +36,22 @@ function App() {
   };
 
   return (
-    <div className="h-screen bg-background text-foreground flex flex-col">
-      <div className="flex-1 flex flex-col px-4 md:px-6 lg:px-8 py-6 overflow-hidden">
+    <div className={`h-screen bg-background text-foreground flex flex-col ${getPlatformClass()}`}>
+      <div className="flex-1 flex flex-col px-4 md:px-6 lg:px-8 py-6 overflow-hidden relative">
+        <Button
+          variant="destructive"
+          size="icon"
+          aria-label="Close and shutdown"
+          onClick={handleShutdown}
+          className="absolute top-6 right-6 z-50 pointer-events-auto cursor-pointer"
+          title="Close and shutdown backend"
+        >
+          <X className="size-4" />
+        </Button>
+
         <div className="mb-6 flex items-center justify-between gap-3 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <Button
-              variant="destructive"
-              size="icon"
-              aria-label="Close and shutdown"
-              onClick={handleShutdown}
-              className="relative z-50 pointer-events-auto cursor-pointer"
-              title="Close and shutdown backend"
-            >
-              <X className="size-4" />
-            </Button>
-            <h1 className="text-2xl font-semibold tracking-tight">Orderbook</h1>
+            <h1 className="text-3xl font-semibold tracking-tight">Orderbook</h1>
             <div className="hidden sm:inline-flex items-center gap-2 rounded-full border border-border bg-muted/30 px-2 py-1">
               <span
                 className={`size-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-destructive'
@@ -61,7 +63,7 @@ function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3 mr-16">
             <ToggleGroup
               type="single"
               value={assetFilter}
@@ -112,7 +114,7 @@ function App() {
         <div className="flex-1 flex flex-col min-h-0">
           <section className="flex-1 flex flex-col min-h-0">
             <div className="mb-3 flex items-center justify-between flex-shrink-0">
-              <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+              <h2 className="text-base font-semibold tracking-wide text-muted-foreground uppercase">
                 Exchange Statistics
               </h2>
             </div>
