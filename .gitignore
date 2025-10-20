@@ -1,0 +1,23 @@
+# Compiled binaries
+orderbook.exe
+*.exe
+
+# Go
+*.out
+*.test
+
+# Frontend
+frontend/node_modules
+frontend/dist
+frontend/.vite
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
