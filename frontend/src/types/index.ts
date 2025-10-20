@@ -63,3 +63,26 @@ export type ChartDataPoint = {
   bid: number;
   ask: number;
 };
+
+export type AggregatedOrderbook = {
+  bids: OrderbookLevel[];
+  asks: OrderbookLevel[];
+  stats: {
+    bestBid: string;
+    bestAsk: string;
+    midPrice: string;
+    spread: string;
+    bidLiquidity05Pct: string;
+    askLiquidity05Pct: string;
+    deltaLiquidity05Pct: string;
+    bidLiquidity2Pct: string;
+    askLiquidity2Pct: string;
+    deltaLiquidity2Pct: string;
+    bidLiquidity10Pct: string;
+    askLiquidity10Pct: string;
+    deltaLiquidity10Pct: string;
+    totalBidsQty: string;
+    totalAsksQty: string;
+    totalDelta: string;
+  };
+};

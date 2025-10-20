@@ -1,40 +1,34 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import type {
-  WebSocketMessage,
-  OrderbookData,
-  StatsData,
-} from '@/types';
+import { useEffect, useRef, useCallback } from 'react';
+import { useStore } from '@/store/useStore';
+import type { WebSocketMessage, OrderbookLevel, StatsData } from '@/types';
 
 export function useWebSocket(url: string) {
-  const [orderbooks, setOrderbooks] = useState<OrderbookData>({});
-  const [stats, setStats] = useState<StatsData>({});
-  const [isConnected, setIsConnected] = useState(false);
+  const { setIsConnected, updateOrderbook, updateStats } = useStore((state) => state.actions);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<number | undefined>(undefined);
 
-  // Batching buffers
-  const orderbookBufferRef = useRef<Map<string, { bids: any[], asks: any[] }>>(new Map());
-  const statsBufferRef = useRef<Map<string, any>>(new Map());
+  const orderbookBufferRef = useRef<Map<string, { bids: OrderbookLevel[]; asks: OrderbookLevel[] }>>(new Map());
+  const statsBufferRef = useRef<Map<string, StatsData[string]>>(new Map());
   const batchTimeoutRef = useRef<number | undefined>(undefined);
 
-  // Batch update function - updates React state once per batch
   const flushUpdates = useCallback(() => {
     if (orderbookBufferRef.current.size > 0) {
-      const orderbookUpdates = Object.fromEntries(orderbookBufferRef.current);
-      setOrderbooks((prev) => ({ ...prev, ...orderbookUpdates }));
+      orderbookBufferRef.current.forEach((value, key) => {
+        updateOrderbook(key, value.bids, value.asks);
+      });
       orderbookBufferRef.current.clear();
     }
 
     if (statsBufferRef.current.size > 0) {
-      const statsUpdates = Object.fromEntries(statsBufferRef.current);
-      setStats((prev) => ({ ...prev, ...statsUpdates }));
+      statsBufferRef.current.forEach((value, key) => {
+        updateStats(key, value);
+      });
       statsBufferRef.current.clear();
     }
 
     batchTimeoutRef.current = undefined;
-  }, []);
+  }, [updateOrderbook, updateStats]);
 
-  // Schedule batch update (throttled to ~60fps max)
   const scheduleBatchUpdate = useCallback(() => {
     if (!batchTimeoutRef.current) {
       batchTimeoutRef.current = window.requestAnimationFrame(flushUpdates);
@@ -55,14 +49,11 @@ export function useWebSocket(url: string) {
         const message: WebSocketMessage = JSON.parse(event.data);
 
         if (message.type === 'orderbook') {
-          // Buffer orderbook update instead of immediate state update
           orderbookBufferRef.current.set(message.exchange, {
             bids: message.bids,
             asks: message.asks,
           });
-          scheduleBatchUpdate();
         } else if (message.type === 'stats') {
-          // Buffer stats update instead of immediate state update
           statsBufferRef.current.set(message.exchange, {
             bestBid: message.bestBid,
             bestAsk: message.bestAsk,
@@ -81,8 +72,8 @@ export function useWebSocket(url: string) {
             totalAsksQty: message.totalAsksQty,
             totalDelta: message.totalDelta,
           });
-          scheduleBatchUpdate();
         }
+        scheduleBatchUpdate();
       };
 
       ws.onerror = (error) => {
@@ -108,11 +99,12 @@ export function useWebSocket(url: string) {
       if (wsRef.current) {
         wsRef.current.close();
       }
-      // Clear buffers on cleanup
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       orderbookBufferRef.current.clear();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       statsBufferRef.current.clear();
     };
-  }, [url, scheduleBatchUpdate]);
+  }, [url, scheduleBatchUpdate, setIsConnected, orderbookBufferRef, statsBufferRef]);
 
   const setTickLevel = (tick: number) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -120,5 +112,5 @@ export function useWebSocket(url: string) {
     }
   };
 
-  return { orderbooks, stats, isConnected, setTickLevel };
+  return { setTickLevel };
 }

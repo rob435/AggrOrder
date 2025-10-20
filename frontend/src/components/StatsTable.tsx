@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react';
 import {
   type ColumnDef,
   type SortingState,
@@ -6,7 +6,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table'
+} from '@tanstack/react-table';
 import {
   Table,
   TableBody,
@@ -14,30 +14,31 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { ExchangeBadge } from '@/components/ExchangeBadge'
-import type { StatsData, MarketFilter } from '@/types'
-import { filterExchangesByMarket, sortExchangesByGroup } from '@/utils/calculations'
+} from '@/components/ui/table';
+import { ExchangeBadge } from '@/components/ExchangeBadge';
+import type { MarketFilter } from '@/types';
+import { useStore } from '@/store/useStore';
+import { filterExchangesByMarket, sortExchangesByGroup } from '@/utils/calculations';
 
 type ExchangeStats = {
-  exchange: string
-  bestBid: string
-  bestAsk: string
-  midPrice: string
-  spread: string
-  bidLiquidity05Pct: string
-  askLiquidity05Pct: string
-  deltaLiquidity05Pct: string
-  bidLiquidity2Pct: string
-  askLiquidity2Pct: string
-  deltaLiquidity2Pct: string
-  bidLiquidity10Pct: string
-  askLiquidity10Pct: string
-  deltaLiquidity10Pct: string
-  totalBidsQty: string
-  totalAsksQty: string
-  totalDelta: string
-}
+  exchange: string;
+  bestBid: string;
+  bestAsk: string;
+  midPrice: string;
+  spread: string;
+  bidLiquidity05Pct: string;
+  askLiquidity05Pct: string;
+  deltaLiquidity05Pct: string;
+  bidLiquidity2Pct: string;
+  askLiquidity2Pct: string;
+  deltaLiquidity2Pct: string;
+  bidLiquidity10Pct: string;
+  askLiquidity10Pct: string;
+  deltaLiquidity10Pct: string;
+  totalBidsQty: string;
+  totalAsksQty: string;
+  totalDelta: string;
+};
 
 const createColumns = (): ColumnDef<ExchangeStats>[] => [
   {
@@ -60,9 +61,9 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
       <div className="font-mono">{parseFloat(row.getValue('midPrice')).toFixed(2)}</div>
     ),
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('midPrice'))
-      const b = parseFloat(rowB.getValue('midPrice'))
-      return a - b
+      const a = parseFloat(rowA.getValue('midPrice'));
+      const b = parseFloat(rowB.getValue('midPrice'));
+      return a - b;
     },
   },
   {
@@ -72,9 +73,9 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
       <div className="font-mono text-green-500">{parseFloat(row.getValue('bestBid')).toFixed(2)}</div>
     ),
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('bestBid'))
-      const b = parseFloat(rowB.getValue('bestBid'))
-      return a - b
+      const a = parseFloat(rowA.getValue('bestBid'));
+      const b = parseFloat(rowB.getValue('bestBid'));
+      return a - b;
     },
   },
   {
@@ -84,9 +85,9 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
       <div className="font-mono text-red-500">{parseFloat(row.getValue('bestAsk')).toFixed(2)}</div>
     ),
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('bestAsk'))
-      const b = parseFloat(rowB.getValue('bestAsk'))
-      return a - b
+      const a = parseFloat(rowA.getValue('bestAsk'));
+      const b = parseFloat(rowB.getValue('bestAsk'));
+      return a - b;
     },
   },
   {
@@ -96,9 +97,9 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
       <div className="font-mono text-xs">{parseFloat(row.getValue('bidLiquidity05Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('bidLiquidity05Pct'))
-      const b = parseFloat(rowB.getValue('bidLiquidity05Pct'))
-      return a - b
+      const a = parseFloat(rowA.getValue('bidLiquidity05Pct'));
+      const b = parseFloat(rowB.getValue('bidLiquidity05Pct'));
+      return a - b;
     },
   },
   {
@@ -108,26 +109,26 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
       <div className="font-mono text-xs">{parseFloat(row.getValue('askLiquidity05Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('askLiquidity05Pct'))
-      const b = parseFloat(rowB.getValue('askLiquidity05Pct'))
-      return a - b
+      const a = parseFloat(rowA.getValue('askLiquidity05Pct'));
+      const b = parseFloat(rowB.getValue('askLiquidity05Pct'));
+      return a - b;
     },
   },
   {
     accessorKey: 'deltaLiquidity05Pct',
     header: 'Δ Liq 0.5%',
     cell: ({ row }) => {
-      const value = parseFloat(row.getValue('deltaLiquidity05Pct'))
+      const value = parseFloat(row.getValue('deltaLiquidity05Pct'));
       return (
         <div className={`font-mono text-xs ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
           {value.toFixed(0)}
         </div>
-      )
+      );
     },
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('deltaLiquidity05Pct'))
-      const b = parseFloat(rowB.getValue('deltaLiquidity05Pct'))
-      return a - b
+      const a = parseFloat(rowA.getValue('deltaLiquidity05Pct'));
+      const b = parseFloat(rowB.getValue('deltaLiquidity05Pct'));
+      return a - b;
     },
   },
   {
@@ -137,9 +138,9 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
       <div className="font-mono text-xs">{parseFloat(row.getValue('bidLiquidity2Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('bidLiquidity2Pct'))
-      const b = parseFloat(rowB.getValue('bidLiquidity2Pct'))
-      return a - b
+      const a = parseFloat(rowA.getValue('bidLiquidity2Pct'));
+      const b = parseFloat(rowB.getValue('bidLiquidity2Pct'));
+      return a - b;
     },
   },
   {
@@ -149,26 +150,26 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
       <div className="font-mono text-xs">{parseFloat(row.getValue('askLiquidity2Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('askLiquidity2Pct'))
-      const b = parseFloat(rowB.getValue('askLiquidity2Pct'))
-      return a - b
+      const a = parseFloat(rowA.getValue('askLiquidity2Pct'));
+      const b = parseFloat(rowB.getValue('askLiquidity2Pct'));
+      return a - b;
     },
   },
   {
     accessorKey: 'deltaLiquidity2Pct',
     header: 'Δ Liq 2%',
     cell: ({ row }) => {
-      const value = parseFloat(row.getValue('deltaLiquidity2Pct'))
+      const value = parseFloat(row.getValue('deltaLiquidity2Pct'));
       return (
         <div className={`font-mono text-xs ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
           {value.toFixed(0)}
         </div>
-      )
+      );
     },
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('deltaLiquidity2Pct'))
-      const b = parseFloat(rowB.getValue('deltaLiquidity2Pct'))
-      return a - b
+      const a = parseFloat(rowA.getValue('deltaLiquidity2Pct'));
+      const b = parseFloat(rowB.getValue('deltaLiquidity2Pct'));
+      return a - b;
     },
   },
   {
@@ -178,9 +179,9 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
       <div className="font-mono text-xs">{parseFloat(row.getValue('bidLiquidity10Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('bidLiquidity10Pct'))
-      const b = parseFloat(rowB.getValue('bidLiquidity10Pct'))
-      return a - b
+      const a = parseFloat(rowA.getValue('bidLiquidity10Pct'));
+      const b = parseFloat(rowB.getValue('bidLiquidity10Pct'));
+      return a - b;
     },
   },
   {
@@ -190,26 +191,26 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
       <div className="font-mono text-xs">{parseFloat(row.getValue('askLiquidity10Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('askLiquidity10Pct'))
-      const b = parseFloat(rowB.getValue('askLiquidity10Pct'))
-      return a - b
+      const a = parseFloat(rowA.getValue('askLiquidity10Pct'));
+      const b = parseFloat(rowB.getValue('askLiquidity10Pct'));
+      return a - b;
     },
   },
   {
     accessorKey: 'deltaLiquidity10Pct',
     header: 'Δ Liq 10%',
     cell: ({ row }) => {
-      const value = parseFloat(row.getValue('deltaLiquidity10Pct'))
+      const value = parseFloat(row.getValue('deltaLiquidity10Pct'));
       return (
         <div className={`font-mono text-xs ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
           {value.toFixed(0)}
         </div>
-      )
+      );
     },
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('deltaLiquidity10Pct'))
-      const b = parseFloat(rowB.getValue('deltaLiquidity10Pct'))
-      return a - b
+      const a = parseFloat(rowA.getValue('deltaLiquidity10Pct'));
+      const b = parseFloat(rowB.getValue('deltaLiquidity10Pct'));
+      return a - b;
     },
   },
   {
@@ -219,9 +220,9 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
       <div className="font-mono text-xs text-green-500">{parseFloat(row.getValue('totalBidsQty')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('totalBidsQty'))
-      const b = parseFloat(rowB.getValue('totalBidsQty'))
-      return a - b
+      const a = parseFloat(rowA.getValue('totalBidsQty'));
+      const b = parseFloat(rowB.getValue('totalBidsQty'));
+      return a - b;
     },
   },
   {
@@ -231,44 +232,42 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
       <div className="font-mono text-xs text-red-500">{parseFloat(row.getValue('totalAsksQty')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('totalAsksQty'))
-      const b = parseFloat(rowB.getValue('totalAsksQty'))
-      return a - b
+      const a = parseFloat(rowA.getValue('totalAsksQty'));
+      const b = parseFloat(rowB.getValue('totalAsksQty'));
+      return a - b;
     },
   },
   {
     accessorKey: 'totalDelta',
     header: 'Total Δ',
     cell: ({ row }) => {
-      const value = parseFloat(row.getValue('totalDelta'))
+      const value = parseFloat(row.getValue('totalDelta'));
       return (
         <div className={`font-mono text-xs font-semibold ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
           {value.toFixed(0)}
         </div>
-      )
+      );
     },
     sortingFn: (rowA, rowB) => {
-      const a = parseFloat(rowA.getValue('totalDelta'))
-      const b = parseFloat(rowB.getValue('totalDelta'))
-      return a - b
+      const a = parseFloat(rowA.getValue('totalDelta'));
+      const b = parseFloat(rowB.getValue('totalDelta'));
+      return a - b;
     },
   },
-]
+];
 
 type StatsTableProps = {
-  stats: StatsData
-  filter?: MarketFilter
-}
+  filter?: MarketFilter;
+};
 
-export function StatsTable({
-  stats,
-  filter = 'all',
-}: StatsTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([])
+export function StatsTable({ filter = 'all' }: StatsTableProps) {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const stats = useStore((state) => state.stats);
 
   const data = useMemo(() => {
-    const filtered = Object.entries(stats)
-      .filter(([exchange]) => filterExchangesByMarket(exchange, filter));
+    const filtered = Object.entries(stats).filter(([exchange]) =>
+      filterExchangesByMarket(exchange, filter)
+    );
 
     const sorted = sortExchangesByGroup(filtered);
 
@@ -276,9 +275,9 @@ export function StatsTable({
       exchange,
       ...stat,
     }));
-  }, [stats, filter])
+  }, [stats, filter]);
 
-  const columns = useMemo(() => createColumns(), [])
+  const columns = useMemo(() => createColumns(), []);
 
   const table = useReactTable({
     data,
@@ -289,11 +288,11 @@ export function StatsTable({
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getRowId: (row) => row.exchange,
-  })
+    getRowId: (row: any) => row.exchange,
+  });
 
   if (data.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -349,5 +348,5 @@ export function StatsTable({
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
