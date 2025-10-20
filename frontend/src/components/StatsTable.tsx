@@ -18,7 +18,7 @@ import {
 import { ExchangeBadge } from '@/components/ExchangeBadge';
 import type { MarketFilter } from '@/types';
 import { useStore } from '@/store/useStore';
-import { filterExchangesByMarket, sortExchangesByGroup } from '@/utils/calculations';
+import { filterExchangesByMarket, filterExchangesByAsset, sortExchangesByGroup } from '@/utils/calculations';
 
 type ExchangeStats = {
   exchange: string;
@@ -58,7 +58,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     accessorKey: 'midPrice',
     header: 'Mid Price',
     cell: ({ row }) => (
-      <div className="font-mono">{parseFloat(row.getValue('midPrice')).toFixed(2)}</div>
+      <div className="font-mono text-base">{parseFloat(row.getValue('midPrice')).toFixed(2)}</div>
     ),
     sortingFn: (rowA, rowB) => {
       const a = parseFloat(rowA.getValue('midPrice'));
@@ -70,7 +70,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     accessorKey: 'bestBid',
     header: 'Best Bid',
     cell: ({ row }) => (
-      <div className="font-mono text-green-500">{parseFloat(row.getValue('bestBid')).toFixed(2)}</div>
+      <div className="font-mono text-base text-green-500">{parseFloat(row.getValue('bestBid')).toFixed(2)}</div>
     ),
     sortingFn: (rowA, rowB) => {
       const a = parseFloat(rowA.getValue('bestBid'));
@@ -82,7 +82,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     accessorKey: 'bestAsk',
     header: 'Best Ask',
     cell: ({ row }) => (
-      <div className="font-mono text-red-500">{parseFloat(row.getValue('bestAsk')).toFixed(2)}</div>
+      <div className="font-mono text-base text-red-500">{parseFloat(row.getValue('bestAsk')).toFixed(2)}</div>
     ),
     sortingFn: (rowA, rowB) => {
       const a = parseFloat(rowA.getValue('bestAsk'));
@@ -94,7 +94,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     accessorKey: 'bidLiquidity05Pct',
     header: 'Bid Qty 0.5%',
     cell: ({ row }) => (
-      <div className="font-mono text-xs">{parseFloat(row.getValue('bidLiquidity05Pct')).toFixed(0)}</div>
+      <div className="font-mono text-sm">{parseFloat(row.getValue('bidLiquidity05Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
       const a = parseFloat(rowA.getValue('bidLiquidity05Pct'));
@@ -106,7 +106,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     accessorKey: 'askLiquidity05Pct',
     header: 'Ask Qty 0.5%',
     cell: ({ row }) => (
-      <div className="font-mono text-xs">{parseFloat(row.getValue('askLiquidity05Pct')).toFixed(0)}</div>
+      <div className="font-mono text-sm">{parseFloat(row.getValue('askLiquidity05Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
       const a = parseFloat(rowA.getValue('askLiquidity05Pct'));
@@ -120,7 +120,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     cell: ({ row }) => {
       const value = parseFloat(row.getValue('deltaLiquidity05Pct'));
       return (
-        <div className={`font-mono text-xs ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
+        <div className={`font-mono text-sm ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
           {value.toFixed(0)}
         </div>
       );
@@ -135,7 +135,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     accessorKey: 'bidLiquidity2Pct',
     header: 'Bid Qty 2%',
     cell: ({ row }) => (
-      <div className="font-mono text-xs">{parseFloat(row.getValue('bidLiquidity2Pct')).toFixed(0)}</div>
+      <div className="font-mono text-sm">{parseFloat(row.getValue('bidLiquidity2Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
       const a = parseFloat(rowA.getValue('bidLiquidity2Pct'));
@@ -147,7 +147,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     accessorKey: 'askLiquidity2Pct',
     header: 'Ask Qty 2%',
     cell: ({ row }) => (
-      <div className="font-mono text-xs">{parseFloat(row.getValue('askLiquidity2Pct')).toFixed(0)}</div>
+      <div className="font-mono text-sm">{parseFloat(row.getValue('askLiquidity2Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
       const a = parseFloat(rowA.getValue('askLiquidity2Pct'));
@@ -161,7 +161,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     cell: ({ row }) => {
       const value = parseFloat(row.getValue('deltaLiquidity2Pct'));
       return (
-        <div className={`font-mono text-xs ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
+        <div className={`font-mono text-sm ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
           {value.toFixed(0)}
         </div>
       );
@@ -176,7 +176,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     accessorKey: 'bidLiquidity10Pct',
     header: 'Bid Qty 10%',
     cell: ({ row }) => (
-      <div className="font-mono text-xs">{parseFloat(row.getValue('bidLiquidity10Pct')).toFixed(0)}</div>
+      <div className="font-mono text-sm">{parseFloat(row.getValue('bidLiquidity10Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
       const a = parseFloat(rowA.getValue('bidLiquidity10Pct'));
@@ -188,7 +188,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     accessorKey: 'askLiquidity10Pct',
     header: 'Ask Qty 10%',
     cell: ({ row }) => (
-      <div className="font-mono text-xs">{parseFloat(row.getValue('askLiquidity10Pct')).toFixed(0)}</div>
+      <div className="font-mono text-sm">{parseFloat(row.getValue('askLiquidity10Pct')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
       const a = parseFloat(rowA.getValue('askLiquidity10Pct'));
@@ -202,7 +202,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     cell: ({ row }) => {
       const value = parseFloat(row.getValue('deltaLiquidity10Pct'));
       return (
-        <div className={`font-mono text-xs ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
+        <div className={`font-mono text-sm ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
           {value.toFixed(0)}
         </div>
       );
@@ -217,7 +217,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     accessorKey: 'totalBidsQty',
     header: 'Total Bids Qty',
     cell: ({ row }) => (
-      <div className="font-mono text-xs text-green-500">{parseFloat(row.getValue('totalBidsQty')).toFixed(0)}</div>
+      <div className="font-mono text-sm text-green-500">{parseFloat(row.getValue('totalBidsQty')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
       const a = parseFloat(rowA.getValue('totalBidsQty'));
@@ -229,7 +229,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     accessorKey: 'totalAsksQty',
     header: 'Total Asks Qty',
     cell: ({ row }) => (
-      <div className="font-mono text-xs text-red-500">{parseFloat(row.getValue('totalAsksQty')).toFixed(0)}</div>
+      <div className="font-mono text-sm text-red-500">{parseFloat(row.getValue('totalAsksQty')).toFixed(0)}</div>
     ),
     sortingFn: (rowA, rowB) => {
       const a = parseFloat(rowA.getValue('totalAsksQty'));
@@ -243,7 +243,7 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
     cell: ({ row }) => {
       const value = parseFloat(row.getValue('totalDelta'));
       return (
-        <div className={`font-mono text-xs font-semibold ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
+        <div className={`font-mono text-sm font-semibold ${value > 0 ? 'text-green-500' : value < 0 ? 'text-red-500' : 'text-yellow-500'}`}>
           {value.toFixed(0)}
         </div>
       );
@@ -258,14 +258,16 @@ const createColumns = (): ColumnDef<ExchangeStats>[] => [
 
 type StatsTableProps = {
   filter?: MarketFilter;
+  assetFilter?: 'BTC' | 'ETH';
 };
 
-export function StatsTable({ filter = 'all' }: StatsTableProps) {
+export function StatsTable({ filter = 'all', assetFilter = 'BTC' }: StatsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const stats = useStore((state) => state.stats);
 
   const data = useMemo(() => {
     const filtered = Object.entries(stats).filter(([exchange]) =>
+      filterExchangesByAsset(exchange, assetFilter) &&
       filterExchangesByMarket(exchange, filter)
     );
 
@@ -275,7 +277,7 @@ export function StatsTable({ filter = 'all' }: StatsTableProps) {
       exchange,
       ...stat,
     }));
-  }, [stats, filter]);
+  }, [stats, filter, assetFilter]);
 
   const columns = useMemo(() => createColumns(), []);
 
@@ -296,9 +298,9 @@ export function StatsTable({ filter = 'all' }: StatsTableProps) {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card shadow-sm">
+    <div className="rounded-lg border border-border bg-card shadow-sm overflow-auto">
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky top-0 bg-card z-10">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (

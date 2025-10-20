@@ -1,6 +1,26 @@
 import type { StatsData, MarketFilter } from '@/types';
 
 /**
+ * Filters exchanges based on asset (BTC or ETH)
+ */
+export function filterExchangesByAsset(
+  exchange: string,
+  asset: 'BTC' | 'ETH'
+): boolean {
+  const symbol = asset === 'BTC' ? 'BTCUSDT' : 'ETHUSDT';
+  return exchange.includes(`:${symbol}`);
+}
+
+/**
+ * Strips the symbol suffix from exchange key
+ * e.g., "binance:BTCUSDT" -> "binance"
+ */
+export function stripSymbolFromExchange(exchange: string): string {
+  const colonIndex = exchange.indexOf(':');
+  return colonIndex >= 0 ? exchange.substring(0, colonIndex) : exchange;
+}
+
+/**
  * Filters exchanges based on market type
  */
 export function filterExchangesByMarket(
@@ -8,8 +28,12 @@ export function filterExchangesByMarket(
   filter: MarketFilter
 ): boolean {
   if (filter === 'all') return true;
-  if (filter === 'spot') return !exchange.endsWith('f');
-  if (filter === 'perps') return exchange.endsWith('f');
+
+  // Strip symbol suffix before checking market type
+  const baseExchange = stripSymbolFromExchange(exchange);
+
+  if (filter === 'spot') return !baseExchange.endsWith('f');
+  if (filter === 'perps') return baseExchange.endsWith('f');
   return true;
 }
 
@@ -61,14 +85,16 @@ export function formatLargeNumber(value: number): string {
  * Extracts the base exchange name (without 'f' suffix for futures)
  */
 export function getBaseExchangeName(exchange: string): string {
-  return exchange.endsWith('f') ? exchange.slice(0, -1) : exchange;
+  const baseExchange = stripSymbolFromExchange(exchange);
+  return baseExchange.endsWith('f') ? baseExchange.slice(0, -1) : baseExchange;
 }
 
 /**
  * Checks if an exchange is a futures/perps market
  */
 export function isFuturesExchange(exchange: string): boolean {
-  return exchange.endsWith('f');
+  const baseExchange = stripSymbolFromExchange(exchange);
+  return baseExchange.endsWith('f');
 }
 
 /**

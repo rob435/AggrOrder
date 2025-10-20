@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
 	"sync"
 	"time"
@@ -21,56 +22,45 @@ import (
 
 func main() {
 	// Parse command line flags
-	var symbol = flag.String("symbol", "BTCUSDT", "Trading symbol to monitor")
 	var logInterval = flag.Duration("log-interval", 10*time.Second, "Interval for logging orderbook stats")
 	flag.Parse()
 
-	// Load configuration with multiple exchanges
-	cfg := config.NewMultiExchange([]config.ExchangeConfig{
-		{
-			Name:   exchange.Binancef,
-			Symbol: *symbol,
-		},
-		{
-			Name:   exchange.Binance,
-			Symbol: *symbol,
-		},
-		{
-			Name:   exchange.Bybitf,
-			Symbol: *symbol,
-		},
-		{
-			Name:   exchange.Bybit,
-			Symbol: *symbol,
-		},
-		{
-			Name:   exchange.Kraken,
-			Symbol: *symbol,
-		},
-		{
-			Name:   exchange.OKX,
-			Symbol: *symbol,
-		},
-		{
-			Name:   exchange.Coinbase,
-			Symbol: *symbol,
-		},
-		{
-			Name:   exchange.Asterdexf,
-			Symbol: *symbol,
-		},
-		{
-			Name:   exchange.Bitfinex,
-			Symbol: *symbol,
-		},
-	})
+	// Define symbols to monitor
+	symbols := []string{"BTCUSDT", "ETHUSDT"}
+
+	// Build exchange configs for all symbols
+	var exchangeConfigs []config.ExchangeConfig
+
+	exchangeNames := []exchange.ExchangeName{
+		exchange.Binancef,
+		exchange.Binance,
+		exchange.Bybitf,
+		exchange.Bybit,
+		exchange.Kraken,
+		exchange.OKX,
+		exchange.Coinbase,
+		exchange.Asterdexf,
+		exchange.Bitfinex,
+	}
+
+	for _, symbol := range symbols {
+		for _, name := range exchangeNames {
+			exchangeConfigs = append(exchangeConfigs, config.ExchangeConfig{
+				Name:   name,
+				Symbol: symbol,
+			})
+		}
+	}
+
+	// Load configuration with multiple exchanges and symbols
+	cfg := config.NewMultiExchange(exchangeConfigs)
 
 	// Set up signal handling
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	log.Printf("Starting multi-exchange orderbook monitor for %s", *symbol)
-	log.Printf("Exchanges: %v", getExchangeNames(cfg.Exchanges))
+	log.Printf("Starting multi-exchange orderbook monitor for symbols: %v", symbols)
+	log.Printf("Exchanges: %v", exchangeNames)
 	log.Printf("Log interval: %v", *logInterval)
 
 	runMultiExchange(cfg, *logInterval, interrupt)
@@ -112,6 +102,27 @@ func runMultiExchange(cfg config.Config, logInterval time.Duration, interrupt ch
 
 	// Start WebSocket server
 	wsServer := websocket.NewServer(orderbooksMap, "8086")
+	wsServer.SetShutdownFunc(func() {
+		log.Println("Shutting down application...")
+		close(done)
+
+		// Kill the frontend dev server (running on port 5173)
+		log.Println("Stopping frontend dev server...")
+
+		// Windows
+		exec.Command("taskkill", "/F", "/FI", "WINDOWTITLE eq Crypto Orderbook - Frontend*").Run()
+		exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-Command",
+			"Get-Process -Id (Get-NetTCPConnection -LocalPort 5173 -State Listen).OwningProcess | Stop-Process -Force").Run()
+
+		// macOS/Linux
+		exec.Command("sh", "-c", "lsof -ti:5173 | xargs kill -9").Run()
+		exec.Command("pkill", "-f", "npm run dev").Run()
+
+		// Give goroutines time to clean up
+		time.Sleep(1 * time.Second)
+		// Force exit
+		os.Exit(0)
+	})
 	go func() {
 		if err := wsServer.Start(); err != nil {
 			log.Fatalf("WebSocket server error: %v", err)
@@ -192,12 +203,14 @@ func runMultiExchange(cfg config.Config, logInterval time.Duration, interrupt ch
 			log.Printf("[%s] Orderbook initialized", exCfg.Name)
 
 			// Add orderbook to shared collections
+			// Key format: "exchange:symbol" (e.g., "binance:BTCUSDT")
+			key := string(exCfg.Name) + ":" + exCfg.Symbol
 			obMutex.Lock()
 			orderbooks = append(orderbooks, &orderbookWithName{
-				name: string(exCfg.Name),
+				name: key,
 				ob:   ob,
 			})
-			orderbooksMap[string(exCfg.Name)] = ob
+			orderbooksMap[key] = ob
 			obMutex.Unlock()
 
 			// Wait for shutdown

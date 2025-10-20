@@ -3,21 +3,34 @@
 echo "Starting Crypto Orderbook..."
 echo ""
 
+# Get the directory where the script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
 # Start the Go backend in the background
 echo "[1/3] Starting Go backend..."
-go run ./cmd/main.go &
-BACKEND_PID=$!
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    osascript -e 'tell app "Terminal" to do script "cd '"$SCRIPT_DIR"' && go run ./cmd/main.go; exit"'
+else
+    # Linux
+    gnome-terminal --title="Crypto Orderbook - Backend" -- bash -c "cd '$SCRIPT_DIR' && go run ./cmd/main.go; exit" 2>/dev/null || \
+    xterm -T "Crypto Orderbook - Backend" -e "bash -c 'cd $SCRIPT_DIR && go run ./cmd/main.go; exit'" &
+fi
 
 # Wait for backend to start
-echo "Waiting for backend to initialize..."
 sleep 3
 
 # Start the frontend in the background
 echo "[2/3] Starting frontend..."
-cd frontend
-npm run dev &
-FRONTEND_PID=$!
-cd ..
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    osascript -e 'tell app "Terminal" to do script "cd '"$SCRIPT_DIR/frontend"' && npm run dev; exit"'
+else
+    # Linux
+    gnome-terminal --title="Crypto Orderbook - Frontend" -- bash -c "cd '$SCRIPT_DIR/frontend' && npm run dev; exit" 2>/dev/null || \
+    xterm -T "Crypto Orderbook - Frontend" -e "bash -c 'cd $SCRIPT_DIR/frontend && npm run dev; exit'" &
+fi
 
 # Wait for frontend to start
 sleep 5
@@ -39,19 +52,7 @@ echo "Done! The application is running."
 echo "- Backend: ws://localhost:8086"
 echo "- Frontend: http://localhost:5173"
 echo ""
-echo "Press Ctrl+C to stop the application."
-
-# Function to cleanup on exit
-cleanup() {
-    echo ""
-    echo "Shutting down..."
-    kill $BACKEND_PID 2>/dev/null
-    kill $FRONTEND_PID 2>/dev/null
-    exit 0
-}
-
-# Set trap to catch Ctrl+C
-trap cleanup INT
-
-# Wait for processes
-wait
+echo "Click the red X button in the browser to shut down everything."
+echo "This window will close in 3 seconds..."
+sleep 3
+exit

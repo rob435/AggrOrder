@@ -4,24 +4,52 @@ import { useTheme } from './hooks/useTheme';
 import { Button } from './components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from './components/ui/tooltip';
 import { ToggleGroup, ToggleGroupItem } from './components/ui/toggle-group';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, X } from 'lucide-react';
 import type { MarketFilter } from './types';
 import { useWebSocket } from './hooks/useWebSocket';
 
 import { StatsTable } from './components/StatsTable';
 
+type AssetFilter = 'BTC' | 'ETH';
+
 function App() {
   const { isDark, toggleTheme } = useTheme();
   const [marketFilter, setMarketFilter] = useLocalStorage<MarketFilter>('marketFilter', 'all');
+  const [assetFilter, setAssetFilter] = useLocalStorage<AssetFilter>('assetFilter', 'BTC');
   const { isConnected } = useStore();
   useWebSocket('ws://localhost:8086/ws');
 
+  const handleShutdown = async () => {
+    try {
+      await fetch('http://localhost:8086/shutdown', { method: 'POST' });
+      // Close the browser tab
+      window.close();
+      // If window.close() doesn't work (requires tab to be opened by script),
+      // show a message
+      setTimeout(() => {
+        alert('Backend shut down. You can close this tab.');
+      }, 100);
+    } catch (error) {
+      console.error('Error shutting down:', error);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6">
-        <div className="mb-6 flex items-center justify-between gap-3">
+    <div className="h-screen bg-background text-foreground flex flex-col">
+      <div className="flex-1 flex flex-col px-4 md:px-6 lg:px-8 py-6 overflow-hidden">
+        <div className="mb-6 flex items-center justify-between gap-3 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold tracking-tight">Crypto Dashboard</h1>
+            <Button
+              variant="destructive"
+              size="icon"
+              aria-label="Close and shutdown"
+              onClick={handleShutdown}
+              className="relative z-50 pointer-events-auto cursor-pointer"
+              title="Close and shutdown backend"
+            >
+              <X className="size-4" />
+            </Button>
+            <h1 className="text-2xl font-semibold tracking-tight">Orderbook</h1>
             <div className="hidden sm:inline-flex items-center gap-2 rounded-full border border-border bg-muted/30 px-2 py-1">
               <span
                 className={`size-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-destructive'
@@ -34,6 +62,20 @@ function App() {
           </div>
 
           <div className="flex items-center gap-2">
+            <ToggleGroup
+              type="single"
+              value={assetFilter}
+              onValueChange={(value) => value && setAssetFilter(value as AssetFilter)}
+              variant="outline"
+            >
+              <ToggleGroupItem value="BTC" aria-label="Show BTC pairs" className="px-2.5">
+                BTC
+              </ToggleGroupItem>
+              <ToggleGroupItem value="ETH" aria-label="Show ETH pairs" className="px-2.5">
+                ETH
+              </ToggleGroupItem>
+            </ToggleGroup>
+
             <ToggleGroup
               type="single"
               value={marketFilter}
@@ -67,14 +109,16 @@ function App() {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <section>
-            <div className="mb-3 flex items-center justify-between">
+        <div className="flex-1 flex flex-col min-h-0">
+          <section className="flex-1 flex flex-col min-h-0">
+            <div className="mb-3 flex items-center justify-between flex-shrink-0">
               <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
                 Exchange Statistics
               </h2>
             </div>
-            <StatsTable filter={marketFilter} />
+            <div className="flex-1 min-h-0">
+              <StatsTable filter={marketFilter} assetFilter={assetFilter} />
+            </div>
           </section>
         </div>
       </div>

@@ -66,14 +66,15 @@ type PriceLevel struct {
 }
 
 type Server struct {
-	orderbooks map[string]*orderbook.OrderBook
-	port       string
-	upgrader   websocket.Upgrader
-	clients    map[*websocket.Conn]bool
-	clientsMux sync.RWMutex
-	broadcast  chan interface{}
-	aggregator *aggregation.Aggregator
-	tickMux    sync.RWMutex
+	orderbooks   map[string]*orderbook.OrderBook
+	port         string
+	upgrader     websocket.Upgrader
+	clients      map[*websocket.Conn]bool
+	clientsMux   sync.RWMutex
+	broadcast    chan interface{}
+	aggregator   *aggregation.Aggregator
+	tickMux      sync.RWMutex
+	shutdownFunc func()
 }
 
 func NewServer(orderbooks map[string]*orderbook.OrderBook, port string) *Server {
@@ -91,14 +92,48 @@ func NewServer(orderbooks map[string]*orderbook.OrderBook, port string) *Server 
 	}
 }
 
+func (s *Server) SetShutdownFunc(fn func()) {
+	s.shutdownFunc = fn
+}
+
 func (s *Server) Start() error {
 	http.HandleFunc("/ws", s.handleWebSocket)
+	http.HandleFunc("/shutdown", s.handleShutdown)
 
 	go s.broadcastMessages()
 	go s.startDataPush()
 
 	log.Printf("WebSocket server starting on port %s", s.port)
 	return http.ListenAndServe(":"+s.port, nil)
+}
+
+func (s *Server) handleShutdown(w http.ResponseWriter, r *http.Request) {
+	// Add CORS headers
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	// Handle preflight request
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	log.Println("Shutdown requested from frontend")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Shutting down..."))
+
+	if s.shutdownFunc != nil {
+		go func() {
+			time.Sleep(500 * time.Millisecond) // Give response time to send
+			s.shutdownFunc()
+		}()
+	}
 }
 
 func (s *Server) handleWebSocket(w http.ResponseWriter, r *http.Request) {

@@ -1,13 +1,14 @@
 import type { SVGProps } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
+import { stripSymbolFromExchange } from '@/utils/calculations';
 import asterLogo from '@/assets/aster.png';
 import bingxLogo from '@/assets/bingx.png';
 
 // SVG Icon Components
 function TokenBrandedBybit(props: SVGProps<SVGSVGElement>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Web3 Icons Branded by 0xa3k5 - https://github.com/0xa3k5/web3icons/blob/main/LICENCE */}<g fill="none"><path fill="#F6A500" d="M15.829 13.626V9h.93v4.626z" /><path fill="#fff" d="M4.993 15H3v-4.626h1.913c.93 0 1.471.507 1.471 1.3c0 .513-.348.845-.588.955c.287.13.655.423.655 1.04c0 .863-.609 1.33-1.458 1.33m-.154-3.82h-.91v1.065h.91c.395 0 .615-.214.615-.533c0-.317-.22-.532-.615-.532m.06 1.877h-.97v1.137h.97c.42 0 .622-.259.622-.571s-.201-.565-.622-.565zm4.388.046V15h-.923v-1.898l-1.431-2.728h1.01l.889 1.864l.877-1.864h1.01zM13.355 15h-1.993v-4.626h1.913c.93 0 1.47.507 1.47 1.3c0 .513-.347.845-.588.955c.287.13.655.423.655 1.04c0 .863-.608 1.33-1.457 1.33m-.155-3.82h-.91v1.065h.91c.395 0 .616-.214.616-.533c0-.317-.22-.532-.616-.532m.06 1.877h-.97v1.137h.97c.422 0 .622-.259.622-.571s-.2-.565-.622-.565zm6.495-1.876V15h-.929v-3.82h-1.245v-.806H21v.806z" /></g></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" {...props}>{/* Icon from Web3 Icons Branded by 0xa3k5 - https://github.com/0xa3k5/web3icons/blob/main/LICENCE */}<g fill="none"><path fill="#F6A500" d="M15.829 13.626V9h.93v4.626z" /><path fill="currentColor" d="M4.993 15H3v-4.626h1.913c.93 0 1.471.507 1.471 1.3c0 .513-.348.845-.588.955c.287.13.655.423.655 1.04c0 .863-.609 1.33-1.458 1.33m-.154-3.82h-.91v1.065h.91c.395 0 .615-.214.615-.533c0-.317-.22-.532-.615-.532m.06 1.877h-.97v1.137h.97c.42 0 .622-.259.622-.571s-.201-.565-.622-.565zm4.388.046V15h-.923v-1.898l-1.431-2.728h1.01l.889 1.864l.877-1.864h1.01zM13.355 15h-1.993v-4.626h1.913c.93 0 1.47.507 1.47 1.3c0 .513-.347.845-.588.955c.287.13.655.423.655 1.04c0 .863-.608 1.33-1.457 1.33m-.155-3.82h-.91v1.065h.91c.395 0 .616-.214.616-.533c0-.317-.22-.532-.616-.532m.06 1.877h-.97v1.137h.97c.422 0 .622-.259.622-.571s-.2-.565-.622-.565zm6.495-1.876V15h-.929v-3.82h-1.245v-.806H21v.806z" /></g></svg>
   );
 }
 
@@ -49,7 +50,8 @@ type ExchangeIconProps = SVGProps<SVGSVGElement> & {
  * Renders the appropriate icon for an exchange
  */
 function ExchangeIcon({ exchange, className, ...props }: ExchangeIconProps) {
-  const exchangeLower = exchange.toLowerCase().replace(/f$/, ''); // Remove 'f' suffix for matching
+  const baseExchange = stripSymbolFromExchange(exchange); // Remove symbol suffix
+  const exchangeLower = baseExchange.toLowerCase().replace(/f$/, ''); // Remove 'f' suffix for matching
 
   // Check for PNG logos first
   if (exchangeLower.includes('aster')) {
@@ -99,14 +101,16 @@ type ExchangeBadgeProps = {
  * Determines if an exchange is perpetual futures based on naming convention
  */
 function isPerps(exchange: string): boolean {
-  return exchange.endsWith('f');
+  const baseExchange = stripSymbolFromExchange(exchange);
+  return baseExchange.endsWith('f');
 }
 
 /**
- * Gets the clean exchange name without the 'f' suffix
+ * Gets the clean exchange name without the 'f' suffix and symbol suffix
  */
 function getCleanExchangeName(exchange: string): string {
-  return exchange.replace(/f$/, '');
+  const baseExchange = stripSymbolFromExchange(exchange);
+  return baseExchange.replace(/f$/, '');
 }
 
 /**
