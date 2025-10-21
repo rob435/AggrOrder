@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -165,12 +164,29 @@
 }
 
 @layer base {
-  * {
+  *,
+  *::before,
+  *::after {
     @apply border-border outline-ring/50;
+    animation: none !important;
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition: none !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    transition-property: none !important;
   }
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Disable all Radix UI animations */
+[data-state],
+[data-side],
+[data-align] {
+  animation: none !important;
+  transition: none !important;
 }
 
 /* Platform-specific styles - Mac gets MAJOR scaling */

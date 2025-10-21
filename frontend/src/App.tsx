@@ -4,19 +4,23 @@ import { useTheme } from './hooks/useTheme';
 import { Button } from './components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from './components/ui/tooltip';
 import { ToggleGroup, ToggleGroupItem } from './components/ui/toggle-group';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Moon, Sun, X } from 'lucide-react';
 import type { MarketFilter } from './types';
 import { useWebSocket } from './hooks/useWebSocket';
 import { getPlatformClass } from './utils/platform';
 
 import { StatsTable } from './components/StatsTable';
+import { AggregatedDOM } from './components/AggregatedDOM';
 
 type AssetFilter = 'BTC' | 'ETH';
+type ViewTab = 'statistics' | 'dom';
 
 function App() {
   const { isDark, toggleTheme } = useTheme();
   const [marketFilter, setMarketFilter] = useLocalStorage<MarketFilter>('marketFilter', 'all');
   const [assetFilter, setAssetFilter] = useLocalStorage<AssetFilter>('assetFilter', 'BTC');
+  const [activeView, setActiveView] = useLocalStorage<ViewTab>('activeView', 'statistics');
   const { isConnected } = useStore();
   useWebSocket('ws://localhost:8086/ws');
 
@@ -111,18 +115,28 @@ function App() {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col min-h-0">
-          <section className="flex-1 flex flex-col min-h-0">
-            <div className="mb-3 flex items-center justify-between flex-shrink-0">
-              <h2 className="text-base font-semibold tracking-wide text-muted-foreground uppercase">
-                Exchange Statistics
-              </h2>
-            </div>
+        <Tabs value={activeView} onValueChange={(value) => setActiveView(value as ViewTab)} className="flex-1 flex flex-col min-h-0">
+          <TabsList className="w-full justify-start mb-4 flex-shrink-0">
+            <TabsTrigger value="statistics" className="px-6">
+              Exchange Statistics
+            </TabsTrigger>
+            <TabsTrigger value="dom" className="px-6">
+              Depth of Market
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="statistics" className="flex-1 min-h-0 m-0 data-[state=active]:flex data-[state=active]:flex-col">
             <div className="flex-1 min-h-0">
               <StatsTable filter={marketFilter} assetFilter={assetFilter} />
             </div>
-          </section>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="dom" className="flex-1 min-h-0 m-0 data-[state=active]:flex data-[state=active]:flex-col">
+            <div className="flex-1 min-h-0">
+              <AggregatedDOM filter={marketFilter} assetFilter={assetFilter} />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
